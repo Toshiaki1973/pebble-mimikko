@@ -4,12 +4,15 @@ static Window *s_window;
 static TextLayer *s_date_layer;
 static TextLayer *s_time_layer;
 static TextLayer *s_phrase_layer;
+static TextLayer *s_battery_layer;
 static GFont s_date_font;
 static GFont s_time_font;
 static GFont s_jp_font;
+static GFont s_battery_font;
 static char s_date_buffer[16];
 static char s_time_buffer[8];
 static char s_phrase_buffer[64];
+static char s_battery_buffer[8];
 
 static const char *s_month_names[] = {
     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -191,6 +194,15 @@ static void update_time(struct tm *tick_time) {
     text_layer_set_text(s_time_layer, s_time_buffer);
 }
 
+static void update_battery(BatteryChargeState state) {
+    snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%", state.charge_percent);
+    text_layer_set_text(s_battery_layer, s_battery_buffer);
+}
+
+static void battery_handler(BatteryChargeState state) {
+    update_battery(state);
+}
+
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
     update_date(tick_time);
     update_time(tick_time);
@@ -212,13 +224,21 @@ static void window_load(Window *window) {
     s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
     s_time_font = fonts_get_system_font(FONT_KEY_ROBOTO_BOLD_SUBSET_49);
     s_jp_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_MIMIKKO_JP_15));
+    s_battery_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 
-    s_date_layer = text_layer_create(GRect(0, 2, bounds.size.w, 32));
+    s_date_layer = text_layer_create(GRect(4, 2, bounds.size.w - 4, 32));
     text_layer_set_background_color(s_date_layer, GColorClear);
     text_layer_set_text_color(s_date_layer, GColorWhite);
     text_layer_set_font(s_date_layer, s_date_font);
-    text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
+    text_layer_set_text_alignment(s_date_layer, GTextAlignmentLeft);
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
+
+    s_battery_layer = text_layer_create(GRect(0, 2, bounds.size.w - 4, 32));
+    text_layer_set_background_color(s_battery_layer, GColorClear);
+    text_layer_set_text_color(s_battery_layer, GColorWhite);
+    text_layer_set_font(s_battery_layer, s_battery_font);
+    text_layer_set_text_alignment(s_battery_layer, GTextAlignmentRight);
+    layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));
 
     s_time_layer = text_layer_create(GRect(0, 38, bounds.size.w, 52));
     text_layer_set_background_color(s_time_layer, GColorClear);
@@ -240,12 +260,14 @@ static void window_load(Window *window) {
     update_date(now);
     update_time(now);
     update_phrase();
+    update_battery(battery_state_service_peek());
 }
 
 static void window_unload(Window *window) {
     text_layer_destroy(s_date_layer);
     text_layer_destroy(s_time_layer);
     text_layer_destroy(s_phrase_layer);
+    text_layer_destroy(s_battery_layer);
     fonts_unload_custom_font(s_jp_font);
 }
 
@@ -262,11 +284,13 @@ static void init(void) {
 
     tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     accel_tap_service_subscribe(accel_tap_handler);
+    battery_state_service_subscribe(battery_handler);
 }
 
 static void deinit(void) {
     tick_timer_service_unsubscribe();
     accel_tap_service_unsubscribe();
+    battery_state_service_unsubscribe();
     window_destroy(s_window);
 }
 
