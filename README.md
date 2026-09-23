@@ -5,6 +5,9 @@ Pebble 2 Duo（flint）向けウォッチフェイス。
 時計・日付と一緒に、関西弁のひとことメッセージをランダム表示する「一方通行のペット時計」。
 お世話は不要、ただ見て時々つぶやいてくれるだけ。
 
+pebble store
+https://apps.repebble.com/mimikko_0ded87a9da8841db85b20176
+
 ## 見た目
 
 - 黒背景・白文字
