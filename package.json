@@ -1,0 +1,26 @@
+{
+  "name": "pebble-mimikko",
+  "author": "toshi",
+  "version": "1.0.0",
+  "keywords": ["pebble-app"],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "mimikko",
+    "uuid": "16c75407-a6a0-4221-bd7b-9542894f3f50",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": ["flint"],
+    "watchapp": { "watchface": true },
+    "resources": {
+      "media": [
+        {
+          "type": "font",
+          "name": "FONT_MIMIKKO_JP_15",
+          "file": "fonts/NotoSansJP-Subset-15.ttf",
+          "characterRegex": "[ぁ-んァ-ヶー、。！？・ ]"
+        }
+      ]
+    }
+  }
+}

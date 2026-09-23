@@ -1,0 +1,6 @@
+build/
+.lock-waf_linux_build
+*.png
+*.pid
+*.log
+pebble-logs.txt
